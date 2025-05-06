@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { supabase } from '../services/supabase';
-import { handleSupabaseError } from '../services/supabase';
+import { prisma } from '../services/prisma';
 import { config } from '../config';
 
 const router = Router();
@@ -8,114 +7,74 @@ const router = Router();
 // Função auxiliar para logging
 const logDebug = (message: string, data?: any) => {
   if (config.server.nodeEnv === 'development') {
-    console.log(`[DEBUG] ${message}`, data ? data : '');
+    console.log(`[HEALTH] ${message}`, data ? data : '');
   }
 };
 
-// Rota para verificar a saúde geral do sistema
+// Rota principal de health check
 router.get('/', async (req, res) => {
-  logDebug('Iniciando verificação de saúde do sistema');
-  
   try {
-    logDebug('Tentando conectar ao Supabase');
+    logDebug('Verificando saúde do sistema');
     
-    // Verifica a conexão com o Supabase
-    const { data: dbStatus, error: dbError } = await supabase
-      .from('health_check')
-      .select('*')
-      .limit(1);
-
-    logDebug('Resposta do Supabase:', { dbStatus, dbError });
-
-    if (dbError) {
-      logDebug('Erro na conexão com o Supabase:', dbError);
-      throw dbError;
-    }
-
-    // Informações do sistema
+    // Verificar conexão com o banco de dados
+    await prisma.$queryRaw`SELECT 1`;
+    
+    // Coletar informações do sistema
     const systemInfo = {
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       nodeVersion: process.version,
       environment: config.server.nodeEnv,
+      timestamp: new Date().toISOString()
     };
-
-    logDebug('Informações do sistema coletadas:', systemInfo);
-
-    const response = {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      database: {
-        status: 'connected',
-        tables: dbStatus ? 'accessible' : 'no_tables',
-      },
-      system: systemInfo,
-    };
-
-    logDebug('Enviando resposta:', response);
-    res.json(response);
-  } catch (error) {
-    logDebug('Erro capturado:', error);
-    const { status, message } = handleSupabaseError(error);
     
-    const errorResponse = {
+    logDebug('Informações do sistema:', systemInfo);
+    
+    res.json({
+      status: 'ok',
+      timestamp: systemInfo.timestamp,
+      system: systemInfo
+    });
+  } catch (error) {
+    logDebug('Erro na verificação de saúde:', error);
+    res.status(500).json({
       status: 'error',
-      message,
-      error: config.server.nodeEnv === 'development' ? error : undefined,
       timestamp: new Date().toISOString(),
-    };
-
-    logDebug('Enviando resposta de erro:', errorResponse);
-    res.status(status).json(errorResponse);
+      error: 'Erro ao verificar saúde do sistema',
+      details: config.server.nodeEnv === 'development' ? error : undefined
+    });
   }
 });
 
-// Rota para verificar especificamente a conexão com o banco
+// Rota específica para verificação do banco de dados
 router.get('/database', async (req, res) => {
-  logDebug('Iniciando verificação específica do banco de dados');
-  
   try {
-    const startTime = Date.now();
-    logDebug('Tentando conectar ao Supabase');
+    logDebug('Verificando conexão com o banco de dados');
     
-    const { data, error } = await supabase
-      .from('health_check')
-      .select('*')
-      .limit(1);
-
-    const responseTime = Date.now() - startTime;
-    logDebug('Resposta do Supabase:', { data, error, responseTime });
-
-    if (error) {
-      logDebug('Erro na conexão com o Supabase:', error);
-      throw error;
-    }
-
-    const response = {
+    const startTime = Date.now();
+    await prisma.$queryRaw`SELECT 1`;
+    const endTime = Date.now();
+    
+    const responseTime = endTime - startTime;
+    
+    logDebug(`Conexão com banco de dados OK (${responseTime}ms)`);
+    
+    res.json({
       status: 'ok',
+      timestamp: new Date().toISOString(),
       database: {
         status: 'connected',
-        responseTime: `${responseTime}ms`,
-        tables: data ? 'accessible' : 'no_tables',
-      },
-      timestamp: new Date().toISOString(),
-    };
-
-    logDebug('Enviando resposta:', response);
-    res.json(response);
+        responseTime: `${responseTime}ms`
+      }
+    });
   } catch (error) {
-    logDebug('Erro capturado:', error);
-    const { status, message } = handleSupabaseError(error);
-    
-    const errorResponse = {
+    logDebug('Erro na verificação do banco de dados:', error);
+    res.status(500).json({
       status: 'error',
-      message,
-      error: config.server.nodeEnv === 'development' ? error : undefined,
       timestamp: new Date().toISOString(),
-    };
-
-    logDebug('Enviando resposta de erro:', errorResponse);
-    res.status(status).json(errorResponse);
+      error: 'Erro ao conectar com o banco de dados',
+      details: config.server.nodeEnv === 'development' ? error : undefined
+    });
   }
 });
 

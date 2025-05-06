@@ -1,7 +1,6 @@
-import { supabase } from './supabase';
-import { handleSupabaseError } from './supabase';
-import { Paciente, CreatePacienteDTO, UpdatePacienteDTO } from '../types/paciente';
+import { prisma } from './prisma';
 import { config } from '../config';
+import { Prisma } from '@prisma/client';
 
 // Função auxiliar para logging
 const logDebug = (message: string, data?: any) => {
@@ -10,124 +9,94 @@ const logDebug = (message: string, data?: any) => {
   }
 };
 
-export const pacienteService = {
-  // Listar todos os pacientes ativos
-  async listar(): Promise<Paciente[]> {
-    logDebug('Listando pacientes');
-    const { data, error } = await supabase
-      .from('paciente')
-      .select('*')
-      .eq('is_active', true)
-      .order('nome');
+// Tipo para os dados de criação de paciente
+type CreatePacienteData = Omit<Prisma.PacienteCreateInput, 'id' | 'createdAt' | 'updatedAt'>;
 
-    if (error) {
-      logDebug('Erro ao listar pacientes:', error);
-      throw error;
-    }
+// Tipo para os dados de atualização de paciente
+type UpdatePacienteData = Partial<CreatePacienteData>;
 
-    logDebug(`${data.length} pacientes encontrados`);
-    return data;
-  },
+export class PacienteService {
+  // Listar todos os pacientes
+  static async listarPacientes() {
+    logDebug('Listando todos os pacientes');
+    return prisma.paciente.findMany({
+      where: { ativo: true },
+      orderBy: { nome: 'asc' }
+    });
+  }
 
   // Buscar paciente por ID
-  async buscarPorId(id: number): Promise<Paciente | null> {
-    logDebug(`Buscando paciente com ID ${id}`);
-    const { data, error } = await supabase
-      .from('paciente')
-      .select('*')
-      .eq('id', id)
-      .single();
+  static async buscarPacientePorId(id: number) {
+    logDebug(`Buscando paciente com ID: ${id}`);
+    return prisma.paciente.findUnique({
+      where: { id }
+    });
+  }
 
-    if (error) {
-      logDebug('Erro ao buscar paciente:', error);
-      throw error;
-    }
-
-    logDebug('Paciente encontrado:', data);
-    return data;
-  },
-
-  // Buscar paciente por cartão SUS
-  async buscarPorCartaoSus(cartaoSus: string): Promise<Paciente | null> {
-    logDebug(`Buscando paciente com cartão SUS ${cartaoSus}`);
-    const { data, error } = await supabase
-      .from('paciente')
-      .select('*')
-      .eq('cartao_sus', cartaoSus)
-      .single();
-
-    if (error) {
-      logDebug('Erro ao buscar paciente:', error);
-      throw error;
-    }
-
-    logDebug('Paciente encontrado:', data);
-    return data;
-  },
+  // Buscar paciente por CPF
+  static async buscarPacientePorCpf(cpf: string) {
+    logDebug(`Buscando paciente com CPF: ${cpf}`);
+    return prisma.paciente.findUnique({
+      where: { cpf }
+    });
+  }
 
   // Criar novo paciente
-  async criar(paciente: CreatePacienteDTO, userId: string): Promise<Paciente> {
-    logDebug('Criando novo paciente:', paciente);
-    const { data, error } = await supabase
-      .from('paciente')
-      .insert({
-        ...paciente,
-        created_by: userId,
-        updated_by: userId
-      })
-      .select()
-      .single();
+  static async criarPaciente(data: CreatePacienteData) {
+    logDebug('Criando novo paciente:', data);
+    
+    // Converter a data de nascimento para DateTime
+    const pacienteData = {
+      ...data,
+      dataNascimento: new Date(data.dataNascimento)
+    };
 
-    if (error) {
-      logDebug('Erro ao criar paciente:', error);
-      throw error;
-    }
-
-    logDebug('Paciente criado com sucesso:', data);
-    return data;
-  },
+    return prisma.paciente.create({
+      data: pacienteData
+    });
+  }
 
   // Atualizar paciente
-  async atualizar(id: number, paciente: UpdatePacienteDTO, userId: string): Promise<Paciente> {
-    logDebug(`Atualizando paciente ${id}:`, paciente);
-    const { data, error } = await supabase
-      .from('paciente')
-      .update({
-        ...paciente,
-        updated_by: userId
-      })
-      .eq('id', id)
-      .select()
-      .single();
+  static async atualizarPaciente(id: number, data: UpdatePacienteData) {
+    logDebug(`Atualizando paciente ${id}:`, data);
+    
+    // Converter a data de nascimento se estiver presente
+    const pacienteData = {
+      ...data,
+      dataNascimento: data.dataNascimento ? new Date(data.dataNascimento) : undefined
+    };
 
-    if (error) {
-      logDebug('Erro ao atualizar paciente:', error);
-      throw error;
-    }
-
-    logDebug('Paciente atualizado com sucesso:', data);
-    return data;
-  },
-
-  // Desativar paciente (soft delete)
-  async desativar(id: number, userId: string): Promise<Paciente> {
-    logDebug(`Desativando paciente ${id}`);
-    const { data, error } = await supabase
-      .from('paciente')
-      .update({
-        is_active: false,
-        updated_by: userId
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      logDebug('Erro ao desativar paciente:', error);
-      throw error;
-    }
-
-    logDebug('Paciente desativado com sucesso:', data);
-    return data;
+    return prisma.paciente.update({
+      where: { id },
+      data: pacienteData
+    });
   }
-}; 
+
+  // Desativar paciente
+  static async desativarPaciente(id: number) {
+    logDebug(`Desativando paciente ${id}`);
+    return prisma.paciente.update({
+      where: { id },
+      data: { ativo: false }
+    });
+  }
+
+  // Buscar pacientes por nome
+  static async buscarPacientesPorNome(nome: string) {
+    logDebug(`Buscando pacientes com nome: ${nome}`);
+    return prisma.paciente.findMany({
+      where: {
+        AND: [
+          { ativo: true },
+          {
+            nome: {
+              contains: nome,
+              mode: 'insensitive'
+            }
+          }
+        ]
+      },
+      orderBy: { nome: 'asc' }
+    });
+  }
+} 
