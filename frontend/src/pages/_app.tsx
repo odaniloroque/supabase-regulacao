@@ -1,41 +1,27 @@
-import React from 'react';
-import { AppProps } from 'next/app';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import type { AppProps } from 'next/app';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ptBR } from '@mui/material/locale';
+import { theme } from '../styles/theme';
+import { AuthProvider } from '../contexts/AuthContext';
+import Layout from '../components/Layout';
+import { useRouter } from 'next/router';
 
-const theme = createTheme(
-  {
-    palette: {
-      primary: {
-        main: '#1976d2',
-      },
-      secondary: {
-        main: '#dc004e',
-      },
-    },
-    typography: {
-      fontFamily: [
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        '"Helvetica Neue"',
-        'Arial',
-        'sans-serif',
-      ].join(','),
-    },
-  },
-  ptBR
-);
+export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  const isLoginPage = router.pathname === '/login';
 
-function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Component {...pageProps} />
+      <AuthProvider>
+        {isLoginPage ? (
+          <Component {...pageProps} />
+        ) : (
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        )}
+      </AuthProvider>
     </ThemeProvider>
   );
-}
-
-export default MyApp; 
+} 

@@ -2,5 +2,11 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js"
+  "/menu": "pages/menu.js",
+  "/": "pages/index.js",
+  "/em-construcao": "pages/em-construcao.js",
+  "/pacientes": "pages/pacientes.js",
+  "/login": "pages/login.js",
+  "/configuracoes/usuarios": "pages/configuracoes/usuarios.js",
+  "/configuracoes/usuarios/[id]": "pages/configuracoes/usuarios/[id].js"
 }

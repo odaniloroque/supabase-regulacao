@@ -27,6 +27,8 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     if (authService.isAuthenticated()) {
       router.push('/menu');
+    } else {
+      router.push('/login');
     }
   }, [router]);
 

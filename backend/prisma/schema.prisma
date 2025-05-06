@@ -46,3 +46,36 @@ model Migration {
 
   @@map("migrations")
 }
+
+model Usuario {
+  id            String    @id @default(uuid())
+  nome          String
+  email         String    @unique
+  senha         String?   // Nullable para usuários que usam apenas Gov.br
+  cpf           String    @unique
+  matricula     String    @unique
+  cargo         String
+  setor         String
+  nivelAcesso   NivelAcesso @default(OPERADOR)
+  govId         String?   @unique // ID do usuário no Gov.br
+  ultimoAcesso  DateTime?
+  ativo         Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  createdBy     String?   // ID do usuário que criou
+  updatedBy     String?   // ID do usuário que atualizou
+
+  // Relações
+  criadoPor     Usuario?  @relation("CriadoPor", fields: [createdBy], references: [id])
+  atualizadoPor Usuario?  @relation("AtualizadoPor", fields: [updatedBy], references: [id])
+  usuariosCriados    Usuario[] @relation("CriadoPor")
+  usuariosAtualizados Usuario[] @relation("AtualizadoPor")
+
+  @@map("usuarios")
+}
+
+enum NivelAcesso {
+  ADMIN
+  SUPERVISOR
+  OPERADOR
+}

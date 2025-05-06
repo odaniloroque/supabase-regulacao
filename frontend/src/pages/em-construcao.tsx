@@ -1,71 +1,40 @@
 import React from 'react';
-import {
-  Container,
-  Box,
-  Paper,
-  Typography,
-  Button,
-  useTheme,
-} from '@mui/material';
-import { Construction as ConstructionIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { Box, Typography, Button } from '@mui/material';
+import { Construction as ConstructionIcon } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const EmConstrucaoPage: React.FC = () => {
-  const theme = useTheme();
   const router = useRouter();
 
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
-    <Container maxWidth="sm">
+    <ProtectedRoute>
       <Box
         sx={{
-          minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
           justifyContent: 'center',
-          py: 4,
+          minHeight: '60vh',
+          textAlign: 'center',
+          p: 3,
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
+        <ConstructionIcon sx={{ fontSize: 80, color: 'warning.main', mb: 2 }} />
+        <Typography variant="h4" component="h1" gutterBottom>
+          Em Construção
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          Esta funcionalidade está sendo desenvolvida e estará disponível em breve.
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => router.push('/menu')}
         >
-          <ConstructionIcon
-            sx={{
-              fontSize: 80,
-              color: theme.palette.warning.main,
-              mb: 3,
-            }}
-          />
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ mb: 2, color: theme.palette.warning.main }}
-          >
-            Em Construção
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 4 }}>
-            Esta funcionalidade está em desenvolvimento. Em breve estará disponível.
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
-          >
-            Voltar
-          </Button>
-        </Paper>
+          Voltar ao Menu
+        </Button>
       </Box>
-    </Container>
+    </ProtectedRoute>
   );
 };
 

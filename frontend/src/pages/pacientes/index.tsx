@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Container,
   Box,
   Paper,
   Typography,
-  TextField,
   Button,
   Table,
   TableBody,
@@ -13,177 +11,219 @@ import {
   TableHead,
   TableRow,
   IconButton,
+  TextField,
   InputAdornment,
-  ToggleButton,
-  ToggleButtonGroup,
-  useTheme,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
+  Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import ProtectedRoute from '../../components/ProtectedRoute';
-
-// Dados mockados para demonstração
-const mockPacientes = [
-  {
-    id: 1,
-    nome: 'João Silva',
-    cartaoSus: '1234567890123',
-    cpf: '123.456.789-00',
-    dataNascimento: '1990-01-01',
-  },
-  {
-    id: 2,
-    nome: 'Maria Santos',
-    cartaoSus: '9876543210987',
-    cpf: '987.654.321-00',
-    dataNascimento: '1985-05-15',
-  },
-  // Adicione mais pacientes mockados conforme necessário
-];
+import { pacientesService } from '../../services/pacientes';
+import { Paciente } from '../../types/paciente';
 
 const PacientesPage: React.FC = () => {
-  const theme = useTheme();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'nome' | 'cartaoSus' | 'cpf'>('nome');
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pacienteToDelete, setPacienteToDelete] = useState<number | null>(null);
 
-  const handleFilterChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newFilter: 'nome' | 'cartaoSus' | 'cpf' | null,
-  ) => {
-    if (newFilter !== null) {
-      setFilterType(newFilter);
+  useEffect(() => {
+    carregarPacientes();
+  }, []);
+
+  const carregarPacientes = async () => {
+    try {
+      setLoading(true);
+      const data = await pacientesService.listarPacientes();
+      setPacientes(data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar pacientes. Por favor, tente novamente.');
+      console.error('Erro ao carregar pacientes:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredPacientes = mockPacientes.filter((paciente) => {
-    const searchLower = searchTerm.toLowerCase();
-    switch (filterType) {
-      case 'nome':
-        return paciente.nome.toLowerCase().includes(searchLower);
-      case 'cartaoSus':
-        return paciente.cartaoSus.includes(searchTerm);
-      case 'cpf':
-        return paciente.cpf.includes(searchTerm);
-      default:
-        return true;
-    }
-  });
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+  const handleEdit = (id: number) => {
+    router.push(`/pacientes/${id}`);
   };
+
+  const handleDeleteClick = (id: number) => {
+    setPacienteToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (pacienteToDelete) {
+      try {
+        await pacientesService.excluirPaciente(pacienteToDelete);
+        setPacientes((prev) =>
+          prev.filter((p) => p.id !== pacienteToDelete)
+        );
+        setError(null);
+      } catch (err) {
+        setError('Erro ao excluir paciente. Por favor, tente novamente.');
+        console.error('Erro ao excluir paciente:', err);
+      }
+    }
+    setDeleteDialogOpen(false);
+    setPacienteToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setPacienteToDelete(null);
+  };
+
+  const formatCPF = (cpf: string) => {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const formatPhone = (phone: string) => {
+    return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR');
+  };
+
+  const filteredPacientes = pacientes.filter((paciente) =>
+    Object.values(paciente).some((value) =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <ProtectedRoute>
-      <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-              <Button
-                startIcon={<ArrowBackIcon />}
-                onClick={() => router.push('/menu')}
-                sx={{ mr: 2 }}
-              >
-                Voltar
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => router.push('/pacientes/novo')}
-              >
-                Novo Paciente
-              </Button>
-            </Box>
+      <Box>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+            <Typography variant="h5" component="h1">
+              Pacientes
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => router.push('/pacientes/novo')}
+            >
+              Novo Paciente
+            </Button>
+          </Box>
 
-            <Box sx={{ mb: 3 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Buscar pacientes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-                <ToggleButtonGroup
-                  value={filterType}
-                  exclusive
-                  onChange={handleFilterChange}
-                  aria-label="tipo de filtro"
-                >
-                  <ToggleButton value="nome" aria-label="filtrar por nome">
-                    Nome
-                  </ToggleButton>
-                  <ToggleButton value="cartaoSus" aria-label="filtrar por cartão SUS">
-                    Cartão SUS
-                  </ToggleButton>
-                  <ToggleButton value="cpf" aria-label="filtrar por CPF">
-                    CPF
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-            </Box>
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
 
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nome</TableCell>
-                    <TableCell>Cartão SUS</TableCell>
-                    <TableCell>CPF</TableCell>
-                    <TableCell>Data de Nascimento</TableCell>
-                    <TableCell align="right">Ações</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredPacientes.length > 0 ? (
-                    filteredPacientes.map((paciente) => (
-                      <TableRow key={paciente.id}>
-                        <TableCell>{paciente.nome}</TableCell>
-                        <TableCell>{paciente.cartaoSus}</TableCell>
-                        <TableCell>{paciente.cpf}</TableCell>
-                        <TableCell>{formatDate(paciente.dataNascimento)}</TableCell>
-                        <TableCell align="right">
-                          <IconButton
-                            color="primary"
-                            onClick={() => router.push(`/pacientes/${paciente.id}`)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton color="error">
-                            <DeleteIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Typography variant="body1" color="text.secondary">
-                          Nenhum paciente encontrado
-                        </Typography>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Buscar pacientes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nome</TableCell>
+                  <TableCell>CPF</TableCell>
+                  <TableCell>Data de Nascimento</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Telefone</TableCell>
+                  <TableCell align="right">Ações</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredPacientes.length > 0 ? (
+                  filteredPacientes.map((paciente) => (
+                    <TableRow key={paciente.id}>
+                      <TableCell>{paciente.nome}</TableCell>
+                      <TableCell>{formatCPF(paciente.cpf)}</TableCell>
+                      <TableCell>{formatDate(paciente.dataNascimento)}</TableCell>
+                      <TableCell>{paciente.email}</TableCell>
+                      <TableCell>{formatPhone(paciente.telefone)}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEdit(paciente.id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeleteClick(paciente.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Box>
-      </Container>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <Typography variant="body1" color="text.secondary">
+                        Nenhum paciente encontrado
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteCancel}
+        >
+          <DialogTitle>Confirmar Exclusão</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDeleteCancel}>Cancelar</Button>
+            <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+              Excluir
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </ProtectedRoute>
   );
 };

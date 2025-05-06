@@ -620,3 +620,333 @@ npm install
 - Implementar níveis de acesso (admin, usuário, etc.)
 - Adicionar histórico de login
 - Implementar expiração de sessão 
+
+## 2024-03-19 17:00 - Implementação do Sistema de Gerenciamento de Usuários
+
+### Funcionalidades Implementadas
+
+1. **Listagem de Usuários**
+   - Tabela com informações principais dos usuários
+   - Busca em tempo real por qualquer campo
+   - Indicadores visuais de nível de acesso e status
+   - Ações de edição e exclusão
+   - Confirmação antes de excluir usuário
+
+2. **Cadastro/Edição de Usuários**
+   - Formulário completo com validação
+   - Campos para informações pessoais e profissionais
+   - Seleção de nível de acesso (Admin, Supervisor, Operador)
+   - Controle de status do usuário
+   - Feedback visual de sucesso/erro
+   - Proteção contra submissões duplicadas
+
+3. **Serviço de Usuários**
+   - Integração com a API
+   - Operações CRUD completas
+   - Tratamento de erros
+   - Autenticação via token
+   - Tipagem forte com TypeScript
+
+4. **Interface**
+   - Design moderno e responsivo
+   - Feedback visual de carregamento
+   - Mensagens de erro claras
+   - Navegação intuitiva
+   - Cores e ícones consistentes
+
+### Melhorias na Experiência
+- Busca instantânea
+- Confirmação antes de ações destrutivas
+- Feedback visual de todas as ações
+- Formulários com validação em tempo real
+- Navegação clara entre páginas
+
+### Próximos Passos
+1. Implementar máscaras para CPF e matrícula
+2. Adicionar validação de força de senha
+3. Implementar recuperação de senha
+4. Adicionar histórico de alterações
+5. Implementar filtros avançados na listagem
+6. Adicionar exportação de dados
+7. Implementar paginação na listagem
+8. Adicionar ordenação por colunas 
+
+## Implementação do Sistema de Gerenciamento de Pacientes (2024-03-19 18:00)
+
+### Funcionalidades Implementadas
+
+1. **Listagem de Pacientes**
+   - Busca em tempo real
+   - Exibição de informações principais
+   - Ações de editar e excluir
+   - Confirmação de exclusão
+   - Feedback visual de carregamento e erros
+
+2. **Cadastro/Edição de Pacientes**
+   - Formulário completo com validação
+   - Campos obrigatórios
+   - Feedback de sucesso/erro
+   - Redirecionamento automático após sucesso
+
+3. **Serviço de Pacientes**
+   - Integração com API
+   - Operações CRUD
+   - Tratamento de erros
+   - Autenticação via token
+
+4. **Interface**
+   - Design moderno e responsivo
+   - Feedback de carregamento
+   - Mensagens de erro claras
+   - Navegação intuitiva
+
+### Melhorias na Experiência do Usuário
+- Busca instantânea em todos os campos
+- Validação em tempo real
+- Confirmação antes de excluir
+- Feedback visual de ações
+
+### Próximos Passos
+1. Implementar validação de CPF
+2. Adicionar máscara para campos de telefone e CPF
+3. Implementar exportação de dados
+4. Adicionar paginação na listagem
+5. Implementar filtros avançados
+
+## 2024-03-19 19:00 - Implementação do Sistema de Gerenciamento de Usuários
+
+### Funcionalidades Implementadas
+
+1. **Listagem de Usuários**
+   - Tabela com informações principais dos usuários
+   - Busca em tempo real por qualquer campo
+   - Indicadores visuais de nível de acesso e status
+   - Ações de edição e exclusão
+   - Confirmação antes de excluir usuário
+
+2. **Cadastro/Edição de Usuários**
+   - Formulário completo com validação
+   - Campos para informações pessoais e profissionais
+   - Seleção de nível de acesso (Admin, Supervisor, Operador)
+   - Controle de status do usuário
+   - Feedback visual de sucesso/erro
+   - Proteção contra submissões duplicadas
+
+3. **Serviço de Usuários**
+   - Integração com a API
+   - Operações CRUD completas
+   - Tratamento de erros
+   - Autenticação via token
+   - Tipagem forte com TypeScript
+
+4. **Interface**
+   - Design moderno e responsivo
+   - Feedback visual de carregamento
+   - Mensagens de erro claras
+   - Navegação intuitiva
+
+### Melhorias na Experiência
+- Busca instantânea
+- Confirmação antes de ações destrutivas
+- Feedback visual de todas as ações
+- Formulários com validação em tempo real
+- Navegação clara entre páginas
+
+### Próximos Passos
+1. Implementar máscaras para CPF e matrícula
+2. Adicionar validação de força de senha
+3. Implementar recuperação de senha
+4. Adicionar histórico de alterações
+5. Implementar filtros avançados na listagem
+6. Adicionar exportação de dados
+7. Implementar paginação na listagem
+8. Adicionar ordenação por colunas 
+
+## 2024-03-19 20:00 - Melhorias no Sistema de Gerenciamento de Pacientes
+
+### Funcionalidades Implementadas
+
+1. **Validação de CPF**
+   - Implementada função de validação completa de CPF
+   - Verificação dos dígitos verificadores
+   - Feedback visual imediato de erros
+   - Prevenção de envio com CPF inválido
+
+2. **Máscaras de Input**
+   - CPF: 999.999.999-99
+   - Telefone: (99) 99999-9999
+   - Formatação automática durante digitação
+   - Melhor experiência do usuário
+
+3. **Formatação de Dados na Listagem**
+   - CPF formatado com pontos e traço
+   - Telefone formatado com parênteses e traço
+   - Data de nascimento no formato brasileiro
+   - Melhor legibilidade dos dados
+
+### Melhorias na Experiência do Usuário
+- Feedback visual imediato de erros
+- Formatação automática de campos
+- Validação em tempo real
+- Interface mais intuitiva
+
+### Próximos Passos
+1. Implementar validação de email
+2. Adicionar máscara para CEP
+3. Implementar validação de data de nascimento
+4. Adicionar máscara para RG
+5. Implementar validação de telefone
+
+## 2024-03-19 21:00 - Implementação do Sistema de Gerenciamento de Usuários
+
+### Funcionalidades Implementadas
+
+1. **Listagem de Usuários**
+   - Tabela com informações principais dos usuários
+   - Busca em tempo real por qualquer campo
+   - Indicadores visuais de nível de acesso e status
+   - Ações de edição e exclusão
+   - Confirmação antes de excluir usuário
+
+2. **Cadastro/Edição de Usuários**
+   - Formulário completo com validação
+   - Campos para informações pessoais e profissionais
+   - Seleção de nível de acesso (Admin, Supervisor, Operador)
+   - Controle de status do usuário
+   - Feedback visual de sucesso/erro
+   - Proteção contra submissões duplicadas
+
+3. **Serviço de Usuários**
+   - Integração com a API
+   - Operações CRUD completas
+   - Tratamento de erros
+   - Autenticação via token
+   - Tipagem forte com TypeScript
+
+4. **Interface**
+   - Design moderno e responsivo
+   - Feedback visual de carregamento
+   - Mensagens de erro claras
+   - Navegação intuitiva
+
+### Melhorias na Experiência
+- Busca instantânea
+- Confirmação antes de ações destrutivas
+- Feedback visual de todas as ações
+- Formulários com validação em tempo real
+- Navegação clara entre páginas
+
+### Próximos Passos
+1. Implementar máscaras para CPF e matrícula
+2. Adicionar validação de força de senha
+3. Implementar recuperação de senha
+4. Adicionar histórico de alterações
+5. Implementar filtros avançados na listagem
+6. Adicionar exportação de dados
+7. Implementar paginação na listagem
+8. Adicionar ordenação por colunas 
+
+## 2024-03-19 21:30 - Correções de Navegação
+
+### Alterações Implementadas
+
+1. **Redirecionamento da Rota Raiz**
+   - Página inicial redireciona para o login
+   - Implementada página index.tsx com redirecionamento automático
+   - Melhor experiência para novos acessos
+
+2. **Correção do Submenu de Controle de Acesso**
+   - Ajustado redirecionamento para /configuracoes/usuarios
+   - Implementada página de listagem de usuários
+   - Criada interface e serviço de usuários
+   - Adicionada validação de CPF e máscaras
+
+3. **Melhorias na Interface**
+   - Indicadores visuais de nível de acesso
+   - Status do usuário com chips coloridos
+   - Confirmação antes de excluir
+   - Feedback visual de ações
+
+### Próximos Passos
+1. Implementar formulário de cadastro/edição de usuários
+2. Adicionar validação de email
+3. Implementar máscaras para CPF e matrícula
+4. Adicionar validação de força de senha
+5. Implementar recuperação de senha
+
+## 2024-03-19 21:40 - Implementação do Sistema de Gerenciamento de Usuários
+
+### Funcionalidades Implementadas
+
+1. **Listagem de Usuários**
+   - Tabela com informações principais dos usuários
+   - Busca em tempo real por qualquer campo
+   - Indicadores visuais de nível de acesso e status
+   - Ações de edição e exclusão
+   - Confirmação antes de excluir usuário
+
+2. **Cadastro/Edição de Usuários**
+   - Formulário completo com validação
+   - Campos para informações pessoais e profissionais
+   - Seleção de nível de acesso (Admin, Supervisor, Operador)
+   - Controle de status do usuário
+   - Feedback visual de sucesso/erro
+   - Proteção contra submissões duplicadas
+
+3. **Serviço de Usuários**
+   - Integração com a API
+   - Operações CRUD completas
+   - Tratamento de erros
+   - Autenticação via token
+   - Tipagem forte com TypeScript
+
+4. **Interface**
+   - Design moderno e responsivo
+   - Feedback visual de carregamento
+   - Mensagens de erro claras
+   - Navegação intuitiva
+
+### Melhorias na Experiência
+- Busca instantânea
+- Confirmação antes de ações destrutivas
+- Feedback visual de todas as ações
+- Formulários com validação em tempo real
+- Navegação clara entre páginas
+
+### Próximos Passos
+1. Implementar máscaras para CPF e matrícula
+2. Adicionar validação de força de senha
+3. Implementar recuperação de senha
+4. Adicionar histórico de alterações
+5. Implementar filtros avançados na listagem
+6. Adicionar exportação de dados
+7. Implementar paginação na listagem
+8. Adicionar ordenação por colunas 
+
+## 2024-03-19 22:00 - Correções de Navegação e Autenticação
+
+### Alterações Implementadas
+
+1. **Separação da Página de Login**
+   - Movida página de login para `/login`
+   - Criada página index com redirecionamento automático
+   - Melhor organização do código
+
+2. **Redirecionamento Inteligente**
+   - Rota raiz verifica autenticação
+   - Redireciona para menu se autenticado
+   - Redireciona para login se não autenticado
+   - Previne acesso direto ao menu sem login
+
+3. **Melhorias na Segurança**
+   - Proteção de rotas mais robusta
+   - Verificação de autenticação em todas as páginas
+   - Redirecionamento automático para login
+   - Prevenção de acesso não autorizado
+
+### Próximos Passos
+1. Implementar expiração de sessão
+2. Adicionar refresh token
+3. Implementar logout automático
+4. Adicionar histórico de login
+5. Implementar recuperação de senha

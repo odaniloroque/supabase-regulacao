@@ -18,6 +18,14 @@ class AuthService {
   private constructor() {
     this.masterEmail = process.env.NEXT_PUBLIC_MASTER_EMAIL || 'admin@example.com';
     this.masterPassword = process.env.NEXT_PUBLIC_MASTER_PASSWORD || 'admin123';
+    
+    // Log das credenciais carregadas (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Credenciais mestres carregadas:', {
+        email: this.masterEmail,
+        password: this.masterPassword ? '******' : undefined,
+      });
+    }
   }
 
   public static getInstance(): AuthService {
@@ -31,6 +39,16 @@ class AuthService {
     try {
       // Simula uma chamada à API
       await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Log das credenciais recebidas (apenas em desenvolvimento)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Tentativa de login:', {
+          email,
+          password: '******',
+          masterEmail: this.masterEmail,
+          masterPassword: this.masterPassword ? '******' : undefined,
+        });
+      }
 
       if (email === this.masterEmail && password === this.masterPassword) {
         const token = this.generateToken();
